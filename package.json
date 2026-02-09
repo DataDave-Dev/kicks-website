@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@astrojs/node": "^9.2.1",
-    "@astrojs/vercel": "^8.1.4",
+    "@astrojs/vercel": "^9.0.4",
     "@fontsource-variable/onest": "^5.2.8",
     "@studio-freight/lenis": "^1.0.42",
     "@supabase/ssr": "^0.6.1",
