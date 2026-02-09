@@ -139,7 +139,6 @@ kick's-web/
 ├── astro.config.mjs                 # Configuración de Astro
 ├── package.json                     # Dependencias y scripts npm
 ├── package-lock.json                # Lock de versiones npm
-├── pnpm-lock.yaml                   # Lock de versiones pnpm
 ├── README.md                        # Documentación del proyecto
 └── tsconfig.json                    # Configuración de TypeScript
 
@@ -275,7 +274,7 @@ FLUJO DE DEPLOYMENT
 ============================================
 
 Desarrollo Local:
-  1. npm install / pnpm install
+  1. npm install
   2. Configurar variables de entorno en .env
   3. npm run dev (puerto 4321)
 

@@ -288,13 +288,11 @@ sequenceDiagram
 **Requerimientos:**
 - **Node.js:** >= 18.x (recomendado: 20.x LTS)
 - **npm:** >= 9.x
-- **pnpm:** >= 8.x (opcional, pero usado en el proyecto)
 
 **Verificación:**
 ```bash
 node --version   # v20.10.0 o superior
 npm --version    # 9.x o superior
-pnpm --version   # 8.x o superior
 ```
 
 ### 3.3 Dependencias de Desarrollo
@@ -325,7 +323,7 @@ pnpm --version   # 8.x o superior
 
 **Software necesario:**
 - ✅ Node.js >= 18.x
-- ✅ npm o pnpm
+- ✅ npm
 - ✅ Git
 - ✅ Editor de código (VS Code recomendado)
 
@@ -346,11 +344,7 @@ cd kick-s-web
 **Paso 2: Instalar dependencias**
 
 ```bash
-# Usando npm
 npm install
-
-# O usando pnpm (recomendado)
-pnpm install
 ```
 
 **Paso 3: Configurar variables de entorno**
@@ -372,8 +366,6 @@ BLOB_READ_WRITE_TOKEN=tu-token-blob
 
 ```bash
 npm run dev
-# o
-pnpm dev
 ```
 
 Acceder a: `http://localhost:4321`
@@ -2238,19 +2230,14 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 8
-
       - name: Install dependencies
-        run: pnpm install
+        run: npm install
 
       - name: Run tests
-        run: pnpm test # (si existen)
+        run: npm test # (si existen)
 
       - name: Build
-        run: pnpm build
+        run: npm run build
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
