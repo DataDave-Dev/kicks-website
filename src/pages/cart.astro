@@ -1,0 +1,61 @@
+---
+import Layout from "../layouts/Layout.astro";
+import SectionContainer from "../components/SectionContainer.astro";
+---
+
+<Layout title="Carrito">
+    <SectionContainer class="py-12 px-4 md:py-25">
+        <h1 class="text-3xl font-bold mb-8 text-center text-gray-800">
+            Carrito de compras
+        </h1>
+        <div id="cart-container" class="max-w-6xl mx-auto"></div>
+    </SectionContainer>
+
+    <script src="../scripts/cart/cart.js"></script>
+
+    <style>
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        @media (max-width: 640px) {
+            .xs\:h-52 {
+                height: 11rem !important;
+            }
+            .sm\:h-64 {
+                height: 14rem !important;
+            }
+            .h-40 {
+                height: 9rem !important;
+            }
+            .xs\:text-lg {
+                font-size: 1.125rem !important;
+            }
+            .xs\:text-2xl {
+                font-size: 1.6rem !important;
+            }
+            .xs\:py-3 {
+                padding-top: 0.75rem !important;
+                padding-bottom: 0.75rem !important;
+            }
+            .xs\:px-8 {
+                padding-left: 2rem !important;
+                padding-right: 2rem !important;
+            }
+            .xs\:p-6 {
+                padding: 1.5rem !important;
+            }
+            .xs\:font-bold {
+                font-weight: 700 !important;
+            }
+            .xs\:mb-2 {
+                margin-bottom: 0.5rem !important;
+            }
+            .xs\:mb-4 {
+                margin-bottom: 1rem !important;
+            }
+        }
+    </style>
+</Layout>

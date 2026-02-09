@@ -1,0 +1,82 @@
+---
+import SectionContainer from "./SectionContainer.astro";
+---
+
+<SectionContainer class="py-12 px-4 md:py-25">
+    <div
+        class="flex flex-col md:flex-row justify-center items-center min-h-[60vh] md:min-h-[70vh] overflow-hidden"
+    >
+        <div
+            class="flex flex-col justify-center items-center text-black/80 text-center p-6"
+        >
+            <h1
+                class="text-4xl md:text-6xl font-extrabold mb-4 animate-fade-in"
+            >
+                Bienvenido a <span class="text-red-500">Kick's Store</span>
+            </h1>
+            <p
+                class="text-lg md:text-2xl mb-8 font-medium animate-fade-in delay-100"
+            >
+                Encuentra los mejores productos de calzado para tu estilo.
+            </p>
+            <a
+                href="/shop"
+                class="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-8 rounded-full shadow-lg text-lg transition-all duration-300 animate-bounce"
+            >
+                Ver Tienda
+            </a>
+        </div>
+    </div>
+</SectionContainer>
+
+<style>
+    @keyframes fade-in {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    .animate-fade-in {
+        animation: fade-in 1s ease forwards;
+    }
+    .delay-100 {
+        animation-delay: 0.1s;
+    }
+    @keyframes bounce {
+        0% {
+            transform: translateY(0);
+        }
+        100% {
+            transform: translateY(-10px);
+        }
+    }
+    .animate-bounce {
+        animation: bounce 1.5s infinite alternate;
+    }
+
+    /* Responsive overrides */
+    @media (max-width: 768px) {
+        .md\:flex-row {
+            flex-direction: column !important;
+        }
+        .md\:w-1\/2 {
+            width: 100% !important;
+        }
+        .md\:text-6xl {
+            font-size: 2.25rem !important;
+        }
+        .md\:min-h-\[70vh\] {
+            min-height: 60vh !important;
+        }
+        .md\:h-full {
+            height: 12rem !important;
+        }
+        .md\:text-2xl {
+            font-size: 1.125rem !important;
+        }
+    }
+</style>

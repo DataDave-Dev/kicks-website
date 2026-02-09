@@ -1,0 +1,312 @@
+---
+import SectionContainer from "../components/SectionContainer.astro";
+import Layout from "../layouts/Layout.astro";
+import ImageUpload from "../components/Modal/ImageUpload.astro";
+
+import { formatDate } from "../lib/utils";
+import { supabase } from "../lib/supabase";
+
+const { cookies, redirect } = Astro;
+const accessToken = cookies.get("sb-access-token");
+const refreshToken = cookies.get("sb-refresh-token");
+
+if (!accessToken && !refreshToken) {
+    return redirect("/signin");
+}
+
+const userCookie = Astro.cookies.get("sb-user");
+
+let user = null;
+
+if (userCookie) {
+    try {
+        user = JSON.parse(userCookie.value);
+    } catch {}
+} else {
+    user = "";
+}
+
+const date = formatDate(user.created)
+
+const { data: addressUser, error: addressUserError } = await supabase
+  .from('Direcciones')
+  .select('Direccion, Ciudad, Pais, CodigoPostal, Estado, MismaParaFacturacion')
+  .eq('id_usuario', user.id)
+  .single();
+
+const { data: preferencesUser, error: preferencesUserError} = await supabase
+    .from("PreferenciasUsuarios")
+    .select('Ofertas, ActualizacionesPedidos, Boletin, Cookiesfuncionales, Cookiesanaliticas, Cookiesmarketing')
+    .eq('id_usuario', user.id)
+    .single();
+---
+
+<Layout title="Configuración de Usuario">
+    <SectionContainer class="py-12 px-4 md:py-20">
+        <div class="container mx-auto px-4 py-8">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-800">Configuración de Usuario</h1>
+                <p class="text-gray-600 mt-2">Administra tu cuenta y preferencias</p>
+            </div>
+            
+            <div class="border-b border-gray-200 mb-6">
+                <nav class="-mb-px flex space-x-8">
+                    <button id="tab-profile" class="tab-button hover:cursor-pointer border-red-500 text-red-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                        Perfil
+                    </button>
+                    <button id="tab-security" class="tab-button hover:cursor-pointer border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                        Seguridad
+                    </button>
+                    <button id="tab-preferences" class="tab-button hover:cursor-pointer border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                        Preferencias
+                    </button>
+                </nav>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="md:col-span-1">
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex flex-col items-center">
+                            <div class="h-24 w-24 rounded-full bg-gray-200 mb-4 overflow-hidden">
+                                <img  src={user.avatar_url ? user.avatar_url : "https://ryfyzi0irxnxik9b.public.blob.vercel-storage.com/usersAvatars/profile-user-wgXBjyJCxSTuVVLhk71ExXAsUw0hIP.webp"} alt=`Avatar de ${user.name + " " + user.lastname}` class="w-full h-full object-cover" />
+                            </div>
+                            <h2 class="text-lg font-medium text-gray-900">{ user.username }</h2>
+                            <p class="text-sm text-gray-500">Miembro desde {date}</p>
+                            <button id="open-modal" class="mt-4 hover:cursor-pointer py-2 px-4 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                Cambiar foto
+                            </button>
+                        </div>
+                        
+                        <div class="mt-6 border-t border-gray-200 pt-4">
+                            <h3 class="text-sm font-medium text-gray-900">Acciones rápidas</h3>
+                            <div class="mt-2 space-y-2">
+                                <a href="/orders" class="block hover:cursor-pointer text-sm text-gray-600 hover:text-red-600">Ver mis pedidos</a>
+                                <a href="/api/auth/signout" class="block hover:cursor-pointer text-sm text-gray-600 hover:text-red-600">Cerrar sesión</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="md:col-span-3">
+                    <div id="content-profile" class="tab-content block">
+                        <div class="bg-white rounded-lg shadow">
+                            <div class="px-6 py-5 border-b border-gray-200">
+                                <h3 class="text-lg font-medium text-gray-900">Información Personal</h3>
+                            </div>
+                            <div class="p-6">
+                                <form method="post" action="/api/user/updateUser">
+                                    <div class="grid grid-cols-6 gap-6">
+                                        <div class="col-span-6 sm:col-span-3">
+                                            <label for="first-name" class="block text-sm font-medium text-gray-700">Nombre(s)</label>
+                                            <input type="text" name="first-name" id="first-name" value=`${user.name}` class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm" required pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ ]+">
+                                        </div>
+
+                                        <div class="col-span-6 sm:col-span-3">
+                                            <label for="last-name" class="block text-sm font-medium text-gray-700">Apellido(s)</label>
+                                            <input type="text" name="last-name" id="last-name" value=`${user.lastname}` class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm" required pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ ]+">
+                                        </div>
+                                        
+                                        <div class="col-span-6">
+                                            <label for="email" class="block text-sm font-medium text-gray-700">Correo electrónico</label>
+                                            <input type="email" name="email" id="email" value=`${user.email}` class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm" required>
+                                        </div>
+                                        
+                                        <div class="col-span-6">
+                                            <label for="phone" class="block text-sm font-medium text-gray-700">Teléfono</label>
+                                            <input type="tel" name="phone" id="phone" maxlength="10" minlength="10" value=`${user.phone}` class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm" required pattern="^[0-9]{10}$">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mt-6">
+                                        <button type="submit" class="inline-flex hover:cursor-pointer justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                                            Guardar cambios
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow mt-6">
+                            <div class="px-6 py-5 border-b border-gray-200">
+                                <h3 class="text-lg font-medium text-gray-900">Dirección de Envío</h3>
+                            </div>
+                            <div class="p-6">
+                                <form method="post" action="/api/user/updateAddress">
+                                    <div class="grid grid-cols-6 gap-6">
+                                        <div class="col-span-6">
+                                            <label for="address" class="block text-sm font-medium text-gray-700">Dirección:</label>
+                                            <input type="text" name="address" id="address" value=`${addressUser?.Direccion? addressUser?.Direccion : ''}` class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm">
+                                        </div>
+                                        
+                                        <div class="col-span-6 sm:col-span-3">
+                                            <label for="city" class="block text-sm font-medium text-gray-700">Ciudad</label>
+                                            <input type="text" name="city" id="city" value=`${addressUser?.Ciudad? addressUser?.Ciudad : ''}` class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm">
+                                        </div>
+                                        
+                                        <div class="col-span-6 sm:col-span-3">
+                                            <label for="postal-code" class="block text-sm font-medium text-gray-700">Código postal</label>
+                                            <input type="text" name="postal-code" id="postal-code" value=`${addressUser?.CodigoPostal? addressUser?.CodigoPostal : ''}` class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm">
+                                        </div>
+
+                                        <div class="col-span-6 sm:col-span-3">
+                                            <label for="state" class="block text-sm font-medium text-gray-700">Estado</label>
+                                            <input type="text" name="state" id="state" value=`${addressUser?.Estado? addressUser?.Estado : ''}` class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm">
+                                        </div>
+                                        
+                                        <div class="col-span-6 sm:col-span-3">
+                                            <label for="country" class="block text-sm font-medium text-gray-700">País</label>
+                                            <select id="country" name="country" class="mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm">
+                                                {!addressUser?.Pais && <option value="">Selecciona un país</option>}
+                                                <option value="MX" selected={addressUser?.Pais === 'MX'}>México</option>
+                                                <option value="US" selected={addressUser?.Pais === 'US'}>Estados Unidos</option>
+                                                <option value="ES" selected={addressUser?.Pais === 'ES'}>España</option>
+                                                <option value="CO" selected={addressUser?.Pais === 'CO'}>Colombia</option>
+                                                <option value="AR" selected={addressUser?.Pais === 'AR'}>Argentina</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mt-6 flex items-center">
+                                        <input id="same-billing" name="same-billing" type="checkbox" class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded" checked={addressUser?.MismaParaFacturacion}>
+                                        <label for="same-billing" class="ml-2 block text-sm text-gray-900">
+                                            Usar como dirección predeterminada
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="mt-6">
+                                        <button type="submit" class="inline-flex hover:cursor-pointer justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                                            Guardar dirección
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="content-security" class="tab-content hidden">
+                        <div class="bg-white rounded-lg shadow">
+                            <div class="px-6 py-5 border-b border-gray-200">
+                                <h3 class="text-lg font-medium text-gray-900">Cambiar Contraseña</h3>
+                            </div>
+                            <div class="p-6">
+                                <form method="post" action="/api/user/updatePassword">
+                                    <div class="space-y-4">
+                                        <div>
+                                            <label for="current-password" class="block text-sm font-medium text-gray-700">Contraseña actual</label>
+                                            <input type="password" name="current-password" id="current-password" value="••••••••" disabled class="mt-1 block w-full bg-gray-200 border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm">
+                                        </div>
+                                        
+                                        <div>
+                                            <label for="new-password" class="block text-sm font-medium text-gray-700">Nueva contraseña</label>
+                                            <input type="password" name="new-password" minlength="8" id="new-password" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm">
+                                        </div>
+                                        
+                                        <div>
+                                            <label for="confirm-password" class="block text-sm font-medium text-gray-700">Confirmar nueva contraseña</label>
+                                            <input type="password" name="confirm-password" minlength="8" id="confirm-password" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mt-6">
+                                        <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                                            Cambiar contraseña
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="content-preferences" class="tab-content hidden">
+                        <div class="bg-white rounded-lg shadow">
+                            <div class="px-6 py-5 border-b border-gray-200">
+                                <h3 class="text-lg font-medium text-gray-900">Preferencias</h3>
+                            </div>
+                            <form class="p-6" method="post" action="/api/user/updatePreferences">
+                                <h4 class="text-sm font-medium text-gray-900 mb-4">Notificaciones</h4>
+                                
+                                <div class="space-y-4">
+                                    <div class="flex items-start">
+                                        <div class="flex items-center h-5">
+                                            <input id="email-offers" name="email-offers" type="checkbox" class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded" checked={preferencesUser?.Ofertas}>
+                                        </div>
+                                        <div class="ml-3 text-sm">
+                                            <label for="email-offers" class="font-medium text-gray-700">Ofertas y promociones</label>
+                                            <p class="text-gray-500">Recibe notificaciones sobre ofertas especiales y descuentos.</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-start">
+                                        <div class="flex items-center h-5">
+                                            <input id="order-updates" name="order-updates" type="checkbox" class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded" checked={preferencesUser?.ActualizacionesPedidos}>
+                                        </div>
+                                        <div class="ml-3 text-sm">
+                                            <label for="order-updates" class="font-medium text-gray-700">Actualizaciones de pedidos</label>
+                                            <p class="text-gray-500">Recibe notificaciones sobre el estado de tus pedidos.</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-start">
+                                        <div class="flex items-center h-5">
+                                            <input id="newsletter" name="newsletter" type="checkbox" class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded" checked={preferencesUser?.Boletin}>
+                                        </div>
+                                        <div class="ml-3 text-sm">
+                                            <label for="newsletter" class="font-medium text-gray-700">Boletín informativo</label>
+                                            <p class="text-gray-500">Mantente al día con nuestras últimas noticias y artículos.</p>
+                                        </div>
+                                    </div>
+                                </div>                    
+                                
+                                <div class="mt-8">
+                                    <h4 class="text-sm font-medium text-gray-900 mb-4">Preferencias de privacidad</h4>
+                                    
+                                    <div class="space-y-4">
+                                        <div class="flex items-start">
+                                            <div class="flex items-center h-5">
+                                                <input id="cookies" name="cookies" type="checkbox" class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded" checked={preferencesUser?.Cookiesfuncionales}>
+                                            </div>
+                                            <div class="ml-3 text-sm">
+                                                <label for="cookies" class="font-medium text-gray-700">Cookies funcionales</label>
+                                                <p class="text-gray-500">Permiten recordar tus preferencias y personalizar tu experiencia.</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="flex items-start">
+                                            <div class="flex items-center h-5">
+                                                <input id="analytics" name="analytics" type="checkbox" class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded" checked={preferencesUser?.Cookiesanaliticas}>
+                                            </div>
+                                            <div class="ml-3 text-sm">
+                                                <label for="analytics" class="font-medium text-gray-700">Cookies analíticas</label>
+                                                <p class="text-gray-500">Nos ayudan a entender cómo utilizas nuestra web para mejorarla.</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="flex items-start">
+                                            <div class="flex items-center h-5">
+                                                <input id="marketing" name="marketing" type="checkbox" class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded" checked={preferencesUser?.Cookiesmarketing}>
+                                            </div>
+                                            <div class="ml-3 text-sm">
+                                                <label for="marketing" class="font-medium text-gray-700">Cookies de marketing</label>
+                                                <p class="text-gray-500">Utilizadas para mostrarte anuncios relevantes en otras webs.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-8">
+                                    <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                                        Guardar preferencias
+                                    </button>
+                                </div>
+                            </form>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <ImageUpload />
+    </SectionContainer>
+</Layout>
+
+<script src="../scripts/settings/settingsUser"></script>
