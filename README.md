@@ -62,12 +62,12 @@ Todos los comandos se ejecutan desde la raíz del proyecto, desde un terminal:
 
 | Comando                   | Acción                                           |
 | :------------------------ | :----------------------------------------------- |
-| `pnpm install`             | Instala dependencias                            |
-| `pnpm dev`             | Inicia el servidor de desarrollo local en `localhost:4321`      |
-| `pnpm build`           | Construye tu sitio de producción en `./dist/`          |
-| `pnpm preview`         | Previsualiza tu construcción localmente, antes de desplegar     |
-| `pnpm astro ...`       | Ejecuta comandos de la CLI como `astro add`, `astro check` |
-| `pnpm astro -- --help` | Obtén ayuda sobre el uso de la CLI de Astro                     |
+| `npm install`             | Instala dependencias                            |
+| `npm run dev`             | Inicia el servidor de desarrollo local en `localhost:4321`      |
+| `npm run build`           | Construye tu sitio de producción en `./dist/`          |
+| `npm run preview`         | Previsualiza tu construcción localmente, antes de desplegar     |
+| `npm run astro ...`       | Ejecuta comandos de la CLI como `astro add`, `astro check` |
+| `npm run astro -- --help` | Obtén ayuda sobre el uso de la CLI de Astro                     |
 
 ## 👀 ¿Quieres aprender más?
 
