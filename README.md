@@ -68,7 +68,3 @@ Todos los comandos se ejecutan desde la raíz del proyecto, desde un terminal:
 | `npm run preview`         | Previsualiza tu construcción localmente, antes de desplegar     |
 | `npm run astro ...`       | Ejecuta comandos de la CLI como `astro add`, `astro check` |
 | `npm run astro -- --help` | Obtén ayuda sobre el uso de la CLI de Astro                     |
-
-## 👀 ¿Quieres aprender más?
-
-No dudes en consultar [nuestra documentación](https://docs.astro.build) o unirte a nuestro [servidor de Discord](https://astro.build/chat).
